@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RailQueue Pro – The Future of Travel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #020617; /* slate-950 */
+      color: #cbd5e1; /* slate-300 */
+      overflow-x: hidden;
+    }
+    
+    /* --- PARTICLES BACKGROUND --- */
+    #particles-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* --- MORPHING BLOB --- */
+    #morphing-blob {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 600px;
+        height: 600px;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        opacity: 0.1;
+        filter: blur(80px);
+        transition: all 2s cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+
+    /* --- ANIMATIONS & EFFECTS --- */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+    @keyframes glow {
+        from { text-shadow: 0 0 5px #0ea5e9, 0 0 10px #0ea5e9; }
+        to { text-shadow: 0 0 20px #0ea5e9, 0 0 30px #0ea5e9; }
+    }
+    .glitch-text-container {
+        position: relative;
+        display: inline-block;
+    }
+    .glitch-text:before, .glitch-text:after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #020617;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+    .glitch-text:before {
+        left: 2px;
+        text-shadow: -2px 0 #ec4899; /* fuchsia-500 */
+        animation: glitch-anim-1 2s infinite linear alternate-reverse;
+    }
+    .glitch-text:after {
+        left: -2px;
+        text-shadow: -2px 0 #67e8f9; /* cyan-300 */
+        animation: glitch-anim-2 2s infinite linear alternate-reverse;
+    }
+    @keyframes glitch-anim-1 { 0% { clip: rect(42px, 9999px, 44px, 0); } 100% { clip: rect(2px, 9999px, 92px, 0); } }
+    @keyframes glitch-anim-2 { 0% { clip: rect(12px, 9999px, 60px, 0); } 100% { clip: rect(70px, 9999px, 75px, 0); } }
+
+    /* --- SCROLL-TRIGGERED ANIMATIONS --- */
+    .prop-hidden {
+        opacity: 0;
+        transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .prop-fly-in-left { transform: translateX(-100px) rotate(-15deg); }
+    .prop-fly-in-right { transform: translateX(100px) rotate(15deg); }
+    .prop-visible {
+        opacity: 1;
+        transform: translateX(0) rotate(0);
+    }
+
+    /* --- UI ELEMENTS --- */
+    .nav-link {
+        color: #94a3b8; /* slate-400 */
+        transition: color 0.3s ease;
+        position: relative;
+    }
+    .nav-link:hover, .nav-link.active {
+        color: #e2e8f0; /* slate-200 */
+        text-shadow: 0 0 10px #0ea5e9;
+    }
+    .tech-button {
+        background: #0ea5e920; border: 1px solid #0ea5e980; color: #e2e8f0;
+        transition: all 0.3s ease; position: relative; overflow: hidden;
+    }
+    .tech-button:before {
+        content: ''; position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%; background: linear-gradient(120deg, transparent, #0ea5e980, transparent);
+        transition: left 0.4s ease;
+    }
+    .tech-button:hover { background: #0ea5e940; box-shadow: 0 0 15px #0ea5e980; }
+    .tech-button:hover:before { left: 100%; }
+    .glass-card {
+        background: #1e293b40; backdrop-filter: blur(12px); border: 1px solid #33415580;
+        border-radius: 1rem; box-shadow: 0 0 40px #00000080;
+    }
+    .ticket-card {
+        background: #1e293b90; backdrop-filter: blur(12px); border: 1px solid #334155;
+        border-radius: 12px; position: relative; animation: float 8s ease-in-out infinite;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .ticket-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 10px 30px #0ea5e920; }
+    .ticket-rip { border-left: 2px dashed #475569; }
+    .ticket-rip::before, .ticket-rip::after { background: #020617; content:''; position: absolute; width: 24px; height: 24px; border-radius: 50%; left: -13px; }
+    .ticket-rip::before { top: -12px; } .ticket-rip::after { bottom: -12px; }
+    .tab-btn.active { color: #67e8f9; border-color: #67e8f9; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .modal-overlay { transition: opacity 0.3s ease; }
+    .modal-content { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.4s ease; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-overlay.open .modal-content { transform: translateY(0) scale(1); opacity: 1; }
+
+  </style>
+</head>
+<body class="text-slate-300">
+  <canvas id="particles-bg"></canvas>
+  
+  <header id="navbar" class="fixed top-0 left-0 w-full bg-slate-950/50 backdrop-blur-lg z-50 transition-all duration-300">
+    <nav class="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+      <a href="#home" class="text-3xl font-extrabold text-slate-100 tracking-tighter glitch-text-container"><span class="glitch-text" data-text="🚆RailQueue">🚆RailQueue</span></a>
+      <ul class="hidden md:flex items-center gap-8 font-semibold">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#mybookings" class="nav-link">My_Bookings</a></li>
+        <li><a href="#manage" class="nav-link">Manage</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="relative min-h-screen flex items-center justify-center pt-20 px-4 overflow-hidden">
+        <svg id="morphing-blob" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+            <path d="" fill="#0ea5e9">
+                <animate attributeName="d" dur="10s" repeatCount="indefinite" values=""></animate>
+            </path>
+        </svg>
+
+      <div class="w-full max-w-5xl text-center relative z-10">
+        <h1 id="main-headline" class="text-5xl md:text-7xl font-extrabold text-slate-100 mb-4 tracking-tight" style="animation: glow 1.5s ease-in-out infinite alternate;"></h1>
+        <p id="sub-headline" class="max-w-2xl mx-auto text-lg text-slate-400 mb-10 opacity-0">Effortlessly book train tickets, track your journey, and manage your trips all in one place.</p>
+        
+        <form id="search-train-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 glass-card">
+          <input id="source" type="text" placeholder="📍 From Station" class="prop-hidden w-full p-4 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition" required>
+          <input id="destination" type="text" placeholder="🏁 To Station" class="prop-hidden w-full p-4 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition" required>
+          <input id="journey-date" type="date" class="prop-hidden w-full p-4 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition" required>
+          <button type="submit" class="prop-hidden tech-button w-full py-4 rounded-lg font-bold text-lg">Find Trains</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="mybookings" class="py-24 px-4">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-16 text-slate-100">My Bookings</h2>
+        <div id="my-bookings-list" class="grid grid-cols-1 lg:grid-cols-2 gap-8"></div>
+      </div>
+    </section>
+
+    <section id="manage" class="py-24 px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4 text-slate-100">Manage Your Journey</h2>
+        <p class="text-center text-slate-400 mb-12">Check PNR status, view train routes, or cancel a ticket.</p>
+        
+        <div class="p-4 glass-card">
+            <div class="flex border-b border-slate-700 mb-6">
+                <button class="tab-btn flex-1 p-4 font-semibold border-b-2 border-transparent text-slate-400 transition hover:text-cyan-400 active" data-tab="pnr">PNR_Status</button>
+                <button class="tab-btn flex-1 p-4 font-semibold border-b-2 border-transparent text-slate-400 transition hover:text-cyan-400" data-tab="routes">Train_Routes</button>
+                <button class="tab-btn flex-1 p-4 font-semibold border-b-2 border-transparent text-slate-400 transition hover:text-cyan-400" data-tab="cancel">Cancel_Ticket</button>
+            </div>
+            
+            <div class="text-slate-200">
+                <div id="pnr-content" class="tab-content active"><form id="pnr-form" class="flex flex-col sm:flex-row gap-3"><input id="pnr-input" type="text" placeholder="Enter PNR" class="flex-grow p-4 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-400 transition"><button type="submit" class="tech-button px-8 py-4 rounded-lg font-semibold">Check Status</button></form><div id="pnr-result" class="mt-6 text-center"></div></div>
+                <div id="routes-content" class="tab-content"><form id="route-form" class="flex flex-col sm:flex-row gap-3"><input id="train-name" type="text" placeholder="Enter Train Name or Number" class="flex-grow p-4 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-400 transition"><button type="submit" class="tech-button px-8 py-4 rounded-lg font-semibold">Show Route</button></form><div id="train-route-result" class="mt-8 overflow-x-auto"></div></div>
+                <div id="cancel-content" class="tab-content"><form id="cancel-form" class="flex flex-col sm:flex-row gap-3"><input id="cancel-input" type="text" placeholder="Enter PNR to Cancel" class="flex-grow p-4 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-red-400 transition"><button type="submit" class="bg-red-500/20 border border-red-500/50 text-white px-8 py-4 rounded-lg font-semibold hover:bg-red-500/40 hover:shadow-lg hover:shadow-red-500/20 transition">Confirm Cancellation</button></form><div id="cancel-result" class="mt-6 text-center"></div></div>
+            </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <div id="notification-container" class="fixed top-5 right-5 z-[100] space-y-3"></div>
+
+  <footer class="bg-slate-900 text-slate-500 py-10 px-4 text-center border-t border-slate-800">
+      <p>&copy; 2025 RailQueue Pro. // Your journey, our priority.</p>
+  </footer>
+
+  <div id="booking-modal" class="modal-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 opacity-0 pointer-events-none">
+    <div id="booking-modal-content" class="modal-content w-full max-w-2xl rounded-2xl p-8 transform scale-95 opacity-0 -translate-y-10 glass-card">
+        <div id="modal-loader" class="text-center py-16 hidden"><div class="w-10 h-10 border-4 border-t-cyan-400 border-slate-700 rounded-full animate-spin mx-auto"></div><p class="mt-4 font-semibold text-cyan-400">Finding available trains...</p></div>
+        <div id="booking-step-1-trains" class="hidden"><h3 class="text-3xl font-bold text-center mb-6 text-slate-100">Available Trains</h3><div id="train-list-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div><button id="close-modal" class="mt-6 bg-slate-600/50 border border-slate-500 text-white w-full py-3 rounded-lg font-semibold hover:bg-slate-500/50 transition">Close</button></div>
+        <div id="booking-step-2-coaches" class="hidden"><h3 class="text-3xl font-bold text-center mb-6 text-slate-100">Select a Coach</h3><div id="coach-list-container" class="space-y-4"></div><button id="back-to-trains" class="mt-6 bg-slate-600/50 border border-slate-500 text-white w-full py-3 rounded-lg font-semibold hover:bg-slate-500/50 transition">Back to Trains</button></div>
+        <div id="booking-step-3-passengers" class="hidden">
+            <h3 class="text-3xl font-bold text-center mb-6 text-slate-100">Passenger Details</h3>
+            <div id="passenger-inputs-container" class="space-y-4 max-h-[50vh] overflow-y-auto pr-2"></div>
+            <button type="button" id="confirm-booking-btn" class="mt-4 bg-green-500/20 border border-green-500/50 text-white w-full py-4 rounded-lg font-semibold text-lg hover:bg-green-500/40 transition-all transform hover:scale-105 shadow-md">Confirm Booking</button>
+            <button id="back-to-coaches" class="mt-4 bg-slate-600/50 border border-slate-500 text-white w-full py-3 rounded-lg font-semibold hover:bg-slate-500/50 transition">Back to Coaches</button>
+        </div>
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // --- ADVANCED ANIMATIONS SETUP ---
+    const canvas = document.getElementById('particles-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+    const mouse = { x: null, y: null };
+    window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; createParticles(); });
+    class Particle { constructor(x, y, dx, dy, size, color) { this.x = x; this.y = y; this.dx = dx; this.dy = dy; this.size = size; this.color = color; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); } update() { if (this.x > canvas.width || this.x < 0) this.dx = -this.dx; if (this.y > canvas.height || this.y < 0) this.dy = -this.dy; this.x += this.dx; this.y += this.dy; this.draw(); } }
+    function createParticles() { particles = []; let n = (canvas.width * canvas.height) / 9000; for (let i = 0; i < n; i++) { let s = Math.random() * 2 + 1, x = Math.random() * (innerWidth-s*2)+s, y = Math.random()*(innerHeight-s*2)+s, dx = (Math.random()-0.5)*0.5, dy = (Math.random()-0.5)*0.5; particles.push(new Particle(x, y, dx, dy, s, '#334155')); } }
+    function connectParticles() { for (let a = 0; a < particles.length; a++) { for (let b = a; b < particles.length; b++) { let dist = Math.sqrt(Math.pow(particles[a].x - particles[b].x, 2) + Math.pow(particles[a].y - particles[b].y, 2)); if (dist < 100) { ctx.strokeStyle = '#47556940'; ctx.lineWidth = 0.2; ctx.beginPath(); ctx.moveTo(particles[a].x, particles[a].y); ctx.lineTo(particles[b].x, particles[b].y); ctx.stroke(); } } if(mouse.x && mouse.y) { let mDist = Math.sqrt(Math.pow(particles[a].x - mouse.x, 2) + Math.pow(particles[a].y - mouse.y, 2)); if(mDist < 150) { ctx.strokeStyle = '#0ea5e980'; ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(particles[a].x, particles[a].y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke(); } } } }
+    function animateParticles() { requestAnimationFrame(animateParticles); ctx.clearRect(0, 0, innerWidth, innerHeight); particles.forEach(p => p.update()); connectParticles(); }
+    createParticles(); animateParticles();
+    const blob = document.querySelector("#morphing-blob path"), animateEl = blob.querySelector("animate"), paths = ["M822.9,232.2C852,352.5,798,495.2,710.2,610.9S558.6,799.3,425.8,819.1,162,650.3,77.4,525.6,41.9,275.9,139.3,155.6,369.6,4.6,509.3,28.2,793.7,112,822.9,232.2Z", "M848.5,263.1c68.3,115.1,52,279.3-17.3,413.5s-191.6,238.3-329.8,245.3S274.5,773,178.5,679.5,23.3,443.3,55.5,321.8,172.1,72.7,294.5,39.4,542.4-7.4,668.5,41.6,780.2,148,848.5,263.1Z", "M858,284.1c42.1,123.1-42.1,268.4-128.6,381.8s-175.3,195-300,207.2-287.6-13.6-382.4-106.6S-16.1,433.9,15.8,312.3,178,59.3,300.9,35.2,709.2,38,804.1,161,858,284.1Z"];
+    animateEl.setAttribute("values", paths.join(';') + ';' + paths[0]);
+    function decodeText(el, text) { let i = 0; const alphabet = "#%&?1234567890", interval = setInterval(() => { el.innerText = text.split("").map((_, idx) => (idx < i) ? text[idx] : alphabet[Math.floor(Math.random() * alphabet.length)]).join(""); if (i >= text.length) clearInterval(interval); i += 1 / 2; }, 30); }
+    setTimeout(() => decodeText(document.getElementById("main-headline"), "Your Journey, Simplified."), 500);
+    setTimeout(() => { document.getElementById('sub-headline').style.opacity = '1'; document.querySelectorAll('#search-train-form .prop-hidden').forEach((item, index) => { setTimeout(() => item.classList.add('prop-visible'), index * 100); }); }, 1500);
+    const propObserver = new IntersectionObserver((entries) => { entries.forEach(entry => { if(entry.isIntersecting) { const props = entry.target.querySelectorAll('.prop-hidden'); props.forEach((prop, index) => setTimeout(() => prop.classList.add('prop-visible'), index * 150)); propObserver.unobserve(entry.target); } }); }, { threshold: 0.2 });
+    
+
+    // ====================== Backend Logic Integration ======================
+    
+    // --- UI ELEMENTS (DOM queries) ---
+    const bookingModal = document.getElementById('booking-modal');
+    const modalLoader = document.getElementById('modal-loader');
+    const bookingSteps = { 1: document.getElementById('booking-step-1-trains'), 2: document.getElementById('booking-step-2-coaches'), 3: document.getElementById('booking-step-3-passengers') };
+    const searchTrainForm = document.getElementById('search-train-form');
+    const pnrForm = document.getElementById("pnr-form");
+    const cancelForm = document.getElementById("cancel-form");
+    const routeForm = document.getElementById("route-form");
+    const notificationContainer = document.getElementById('notification-container');
+
+    // --- Data Structures ---
+    class Station { constructor(code, name) { this.stationCode = code; this.stationName = name; } }
+    class Coach {
+        constructor(name, type, totalSeats, price, waitingListLimit = 5) {
+            this.coachName = name; this.coachType = type; this.totalSeats = totalSeats; this.price = price;
+            this.availableSeats = totalSeats;
+            this.seatStatus = Array(totalSeats).fill(false);
+            this.waitingList = [];
+            this.waitingListLimit = waitingListLimit;
+        }
+        getNextAvailableSeat() { return this.seatStatus.findIndex(s => s === false); }
+    }
+    class Train {
+        constructor(number, name, stations = [], coaches = []) {
+            this.trainNumber = number; this.trainName = name; 
+            this.stations = stations;
+            this.coachesMap = new Map(coaches.map(c => [c.coachType, c]));
+        }
+    }
+    class Passenger {
+        constructor(data) { Object.assign(this, data); }
+    }
+    class CircularQueue {
+        constructor() { this.queue = []; }
+        enqueue(item) { this.queue.push(item); }
+        getItems() { return [...this.queue]; }
+    }
+
+    // --- Global State ---
+    let trainsMap = new Map();
+    let passengersMap = new Map();
+    let circularQueue = new CircularQueue();
+    let pnrCounter = 1000;
+    let masterStations = [];
+    let routeMap = new Map();
+    
+    // --- Global UI State ---
+    let currentSearch = {}; 
+    let selectedTrainId = null; 
+    let selectedCoachId = null;
+
+    // --- Core Functions ---
+    const generatePNR = () => `PNR${++pnrCounter}`;
+    const getStationByCode = (code) => masterStations.find(s => s.stationCode === code);
+    const getStationByName = (name) => masterStations.find(s => s.stationName.toLowerCase() === name.toLowerCase());
+
+    function bookTicket(details) {
+        const train = trainsMap.get(details.trainNumber);
+        if (!train) return { success: false, message: "Train not found" };
+        const srcIndex = train.stations.findIndex(s => s.stationCode === details.sourceStation);
+        const destIndex = train.stations.findIndex(s => s.stationCode === details.destinationStation);
+        if (srcIndex === -1 || destIndex === -1 || srcIndex >= destIndex) return { success: false, message: "Invalid route" };
+
+        const coach = train.coachesMap.get(details.coachType);
+        if (!coach) return { success: false, message: "Coach type not available" };
+        
+        const pnr = generatePNR();
+        const passengerData = { ...details, pnr, bookingStatus: "Waiting" };
+        let passenger = new Passenger(passengerData);
+        
+        const seatIndex = coach.getNextAvailableSeat();
+        if (seatIndex !== -1) {
+            coach.seatStatus[seatIndex] = true;
+            coach.availableSeats--;
+            passenger.coachName = coach.coachName;
+            passenger.seatNumber = seatIndex + 1;
+            passenger.bookingStatus = "Booked";
+        } else {
+            if (coach.waitingList.length >= coach.waitingListLimit) return { success: false, message: "Waiting list is full" };
+            coach.waitingList.push(passenger);
+        }
+
+        passengersMap.set(pnr, passenger);
+        circularQueue.enqueue(pnr);
+        saveState();
+        return { success: true, passenger };
+    }
+
+    function cancelTicket(pnr) {
+        if (!passengersMap.has(pnr)) return { success: false, message: "Invalid PNR" };
+        const passenger = passengersMap.get(pnr);
+        if (passenger.bookingStatus === "Cancelled") return { success: false, message: "Ticket already cancelled" };
+        
+        const train = trainsMap.get(passenger.trainNumber);
+        const coach = train.coachesMap.get(passenger.coachType);
+        if (!coach) return { success: false, message: "System error: Coach not found." };
+        
+        if (passenger.bookingStatus === "Booked") {
+            const seatIndexToFree = passenger.seatNumber - 1;
+            coach.seatStatus[seatIndexToFree] = false;
+            coach.availableSeats++;
+
+            if (coach.waitingList.length > 0) {
+                const promotedPassengerData = coach.waitingList.shift();
+                const promotedPassenger = passengersMap.get(promotedPassengerData.pnr);
+                
+                coach.seatStatus[seatIndexToFree] = true;
+                coach.availableSeats--;
+                
+                promotedPassenger.bookingStatus = "Booked";
+                promotedPassenger.coachName = coach.coachName;
+                promotedPassenger.seatNumber = seatIndexToFree + 1;
+                showNotification(`PNR ${promotedPassenger.pnr} has been confirmed!`, 'info');
+            }
+        } else { 
+            coach.waitingList = coach.waitingList.filter(p => p.pnr !== pnr);
+        }
+        
+        passenger.bookingStatus = "Cancelled";
+        saveState();
+        return { success: true, message: `Ticket ${pnr} has been cancelled.` };
+    }
+
+    // --- UI & Data Display Functions ---
+    const showNotification = (message, type = 'success') => { const c = { success: 'bg-green-500/20 border border-green-500 text-green-300', info: 'bg-cyan-500/20 border border-cyan-500 text-cyan-300', error: 'bg-red-500/20 border border-red-500 text-red-300' }; const n = document.createElement('div'); n.className = `notification ${c[type]} py-2 px-5 rounded-lg shadow-lg opacity-0 transform translate-x-10 scale-90 backdrop-blur-sm`; n.textContent = message; notificationContainer.appendChild(n); setTimeout(() => n.classList.remove('opacity-0', 'translate-x-10', 'scale-90'), 10); setTimeout(() => { n.classList.add('opacity-0', 'translate-x-10', 'scale-90'); n.addEventListener('transitionend', () => n.remove(), { once: true }); }, 4000); };
+    const showModal = () => bookingModal.classList.add('open');
+    const hideModal = () => bookingModal.classList.remove('open');
+    const switchBookingStep = (step) => { Object.values(bookingSteps).forEach(s => s.classList.add('hidden')); modalLoader.classList.add('hidden'); if(bookingSteps[step]) bookingSteps[step].classList.remove('hidden'); };
+    
+    function loadBookings() {
+        const container = document.getElementById("my-bookings-list");
+        const allPnrs = circularQueue.getItems();
+        const activeBookings = allPnrs.map(pnr => passengersMap.get(pnr)).filter(p => p && p.bookingStatus !== "Cancelled");
+        
+        if (!activeBookings.length) { container.innerHTML = "<p class='col-span-full text-center text-slate-500'>// No active bookings found</p>"; return; }
+
+        container.innerHTML = activeBookings.map((b, index) => {
+            const train = trainsMap.get(b.trainNumber);
+            const trainName = train ? train.trainName : 'Unknown';
+            const statusClass = b.bookingStatus === 'Booked' ? 'text-green-400' : 'text-amber-400';
+            const sourceName = getStationByCode(b.sourceStation)?.stationName || 'N/A';
+            const destName = getStationByCode(b.destinationStation)?.stationName || 'N/A';
+            let seatInfo = `${b.coachName}-${b.seatNumber}`;
+            if (b.bookingStatus === 'Waiting') {
+                const coach = train.coachesMap.get(b.coachType);
+                const wlNumber = coach.waitingList.findIndex(p => p.pnr === b.pnr) + 1;
+                seatInfo = `WL-${wlNumber}`;
+            }
+
+            return `<div class="ticket-card flex prop-hidden ${index % 2 === 0 ? 'prop-fly-in-left' : 'prop-fly-in-right'}"><div class="p-6 w-[70%] space-y-3"><div class="flex justify-between items-center"><p class="font-bold text-xl text-slate-100">${trainName}</p><span class="font-mono text-xs bg-cyan-400/10 text-cyan-400 font-semibold px-2 py-1 rounded-full">${b.pnr}</span></div><div class="flex items-end space-x-4 text-slate-300"><div class="text-left"><p class="text-xs">From</p><p class="font-bold text-lg text-slate-100">${sourceName}</p></div><div class="flex-1 text-center text-cyan-400 font-semibold">→</div><div class="text-right"><p class="text-xs">To</p><p class="font-bold text-lg text-slate-100">${destName}</p></div></div><div class="border-t border-slate-700 pt-3 flex justify-between text-sm"><div><p class="text-xs">Seat</p><p class="font-semibold">${seatInfo}</p></div><div><p class="text-xs">Passenger</p><p class="font-semibold">${b.name}</p></div></div></div><div class="ticket-rip"></div><div class="p-6 w-[30%] flex flex-col items-center justify-center text-center bg-slate-900/50 rounded-r-xl"><p class="text-xs mb-1">Status</p><p class="font-bold text-lg ${statusClass}">${b.bookingStatus}</p></div></div>`;
+        }).join("");
+        
+        container.querySelectorAll('.prop-hidden').forEach((prop, index) => setTimeout(() => prop.classList.add('prop-visible'), index * 100));
+    }
+
+    function saveState() {
+        try {
+            const serializableState = { pnrCounter, passengers: Array.from(passengersMap.entries()), circularQueue: circularQueue.getItems(), trains: Array.from(trainsMap.values()).map(t => ({ trainNumber: t.trainNumber, coaches: Array.from(t.coachesMap.values()).map(c => ({ coachType: c.coachType, seatStatus: c.seatStatus, availableSeats: c.availableSeats, waitingList: c.waitingList })) })) };
+            localStorage.setItem('railwayState', JSON.stringify(serializableState));
+        } catch (error) { console.error("Failed to save state:", error); }
+    }
+    
+    function loadState() {
+        try {
+            const savedState = JSON.parse(localStorage.getItem('railwayState'));
+            if (!savedState) return;
+            pnrCounter = savedState.pnrCounter;
+            passengersMap = new Map(savedState.passengers.map(([pnr, data]) => [pnr, new Passenger(data)]));
+            circularQueue.queue = savedState.circularQueue || [];
+            savedState.trains.forEach(sT => {
+                const train = trainsMap.get(sT.trainNumber);
+                if (train) sT.coaches.forEach(sC => {
+                    const coach = train.coachesMap.get(sC.coachType);
+                    if (coach) Object.assign(coach, { seatStatus: sC.seatStatus, availableSeats: sC.availableSeats, waitingList: sC.waitingList.map(p => new Passenger(p)) });
+                });
+            });
+        } catch (error) { console.error("Failed to load state:", error); }
+    }
+
+    function initializeData() {
+        masterStations = [ new Station("MAS", "Chennai"), new Station("SBC", "Bangalore"), new Station("HYB", "Hyderabad"), new Station("NDLS", "New Delhi"), new Station("HWH", "Howrah")];
+        const [chennai, bangalore, hyderabad, delhi, howrah] = masterStations;
+        
+        const train1 = new Train("12601", "Bangalore Express", [chennai, bangalore, hyderabad], [new Coach("B1", "2AC", 2, 1200), new Coach("S1", "SL", 3, 500)]);
+        const train2 = new Train("12301", "Capital Rajdhani", [delhi, howrah], [new Coach("A1", "1AC", 1, 3500), new Coach("B5", "2AC", 2, 2800)]);
+        
+        [train1, train2].forEach(t => trainsMap.set(t.trainNumber, t));
+        
+        trainsMap.forEach(train => {
+            for (let i = 0; i < train.stations.length; i++) {
+                for (let j = i + 1; j < train.stations.length; j++) {
+                    const routeKey = `${train.stations[i].stationCode}-${train.stations[j].stationCode}`;
+                    if (!routeMap.has(routeKey)) routeMap.set(routeKey, []);
+                    routeMap.get(routeKey).push(train);
+                }
+            }
+        });
+        loadState();
+    }
+    
+    // --- EVENT LISTENERS ---
+    searchTrainForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const sourceStation = getStationByName(document.getElementById('source').value);
+        const destStation = getStationByName(document.getElementById('destination').value);
+        if (!sourceStation || !destStation) return showNotification("Invalid station name.", "error");
+        currentSearch = { source: sourceStation.stationCode, destination: destStation.stationCode };
+        modalLoader.classList.remove('hidden'); Object.values(bookingSteps).forEach(s => s.classList.add('hidden')); showModal();
+        setTimeout(() => {
+            const availableTrains = routeMap.get(`${currentSearch.source}-${currentSearch.destination}`) || [];
+            const container = document.getElementById('train-list-container');
+            container.innerHTML = availableTrains.length === 0
+                ? `<p class="text-center text-red-400 bg-red-500/10 p-4 rounded-lg">No direct trains found.</p>`
+                : availableTrains.map(t => `<div class="glass-card p-4 flex flex-col sm:flex-row justify-between items-center gap-4"> <div> <p class="font-bold text-lg text-slate-100">${t.trainName} <span class="text-sm font-normal text-slate-400">(${t.trainNumber})</span></p> <p class="text-sm text-slate-300 font-semibold">${sourceStation.stationName} → ${destStation.stationName}</p> </div> <button class="select-train-btn tech-button px-5 py-2 rounded-lg w-full sm:w-auto" data-train-number="${t.trainNumber}">Select Coach</button> </div>`).join('');
+            switchBookingStep(1);
+        }, 1000);
+    });
+
+    bookingModal.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.matches('#close-modal')) hideModal();
+        if (target.matches('#back-to-trains')) switchBookingStep(1);
+        if (target.matches('#back-to-coaches')) switchBookingStep(2);
+        
+        if (target.matches('.select-train-btn')) {
+            selectedTrainId = target.dataset.trainNumber;
+            const train = trainsMap.get(selectedTrainId);
+            const container = document.getElementById('coach-list-container');
+            container.innerHTML = Array.from(train.coachesMap.values()).map(c => {
+                const wlInfo = c.waitingList.length > 0 ? `| WL ${c.waitingList.length}/${c.waitingListLimit}` : '';
+                const availabilityText = c.availableSeats > 0 ? `${c.availableSeats} Seats Available` : 'Waiting List';
+                return `<div class="glass-card p-4 flex justify-between items-center"> <div> <p class="font-bold text-lg text-slate-100">${c.coachType} <span class="font-normal text-slate-400">(₹${c.price})</span></p> <p class="text-sm font-semibold ${c.availableSeats > 0 ? 'text-green-400' : 'text-amber-400'}">${availabilityText} ${wlInfo}</p> </div> <button class="select-coach-btn tech-button px-5 py-2 rounded-lg" data-coach-type="${c.coachType}">Select</button> </div>`
+            }).join('');
+            switchBookingStep(2);
+        }
+        
+        if (target.matches('.select-coach-btn')) {
+            selectedCoachId = target.dataset.coachType;
+            const container = document.getElementById('passenger-inputs-container');
+            container.innerHTML = `<div class="p-4 border border-slate-700 rounded-lg space-y-3 bg-slate-900/50"> <input type="text" placeholder="Full Name" class="passenger-name w-full p-3 bg-slate-800/50 border border-slate-600 rounded-md" required> <input type="tel" placeholder="Mobile Number" class="passenger-mobile w-full p-3 bg-slate-800/50 border border-slate-600 rounded-md" required> <div class="grid grid-cols-2 gap-3"> <input type="number" placeholder="Age" class="passenger-age w-full p-3 bg-slate-800/50 border border-slate-600 rounded-md" required> <select class="passenger-gender w-full p-3 bg-slate-800/50 border border-slate-600 rounded-md" required> <option value="">Gender</option> <option value="Male">Male</option> <option value="Female">Female</option> </select> </div> </div>`;
+            switchBookingStep(3);
+        }
+        
+        if (target.matches('#confirm-booking-btn')) {
+            try {
+                const passengerDetails = {
+                    name: document.querySelector('.passenger-name').value.trim(),
+                    mobile: document.querySelector('.passenger-mobile').value.trim(),
+                    age: document.querySelector('.passenger-age').value,
+                    gender: document.querySelector('.passenger-gender').value,
+                    trainNumber: selectedTrainId,
+                    sourceStation: currentSearch.source,
+                    destinationStation: currentSearch.destination,
+                    coachType: selectedCoachId
+                };
+
+                if (!passengerDetails.name || !passengerDetails.mobile || !passengerDetails.age || !passengerDetails.gender) {
+                    return showNotification('Please fill all passenger details.', 'error');
+                }
+                
+                const result = bookTicket(passengerDetails);
+
+                if (result.success) {
+                    showNotification(`Success! PNR: ${result.passenger.pnr}, Status: ${result.passenger.bookingStatus}`, 'success');
+                    loadBookings();
+                    hideModal();
+                } else {
+                    showNotification(`Booking Failed: ${result.message}`, 'error');
+                }
+            } catch (error) {
+                console.error("Booking failed with an error:", error);
+                showNotification("A critical system error occurred.", "error");
+            }
+        }
+    });
+    
+    pnrForm.addEventListener("submit", (e) => { e.preventDefault(); const pnr = document.getElementById("pnr-input").value.trim().toUpperCase(); const r = document.getElementById("pnr-result"); if (!passengersMap.has(pnr)) { r.innerHTML = `<p class="text-red-400 bg-red-500/10 p-4 rounded-lg">Invalid PNR</p>`; return; } const b = passengersMap.get(pnr); const t = trainsMap.get(b.trainNumber); r.innerHTML = `<div class="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 p-4 rounded-lg text-left space-y-1"><p><strong>PNR:</strong> ${b.pnr}</p><p><strong>Train:</strong> ${t.trainName} (${b.trainNumber})</p><p><strong>Passenger:</strong> ${b.name}</p><p><strong>Status:</strong> <span class="font-bold">${b.bookingStatus} (${b.coachName || 'WL'}-${b.seatNumber || 'N/A'})</span></p></div>`; });
+    cancelForm.addEventListener("submit", (e) => { e.preventDefault(); const pnr = document.getElementById("cancel-input").value.trim().toUpperCase(); const r = document.getElementById("cancel-result"); const result = cancelTicket(pnr); if(result.success) { r.innerHTML = `<p class="text-green-400 bg-green-500/10 p-4 rounded-lg">${result.message}</p>`; showNotification(result.message, 'info'); loadBookings(); } else { r.innerHTML = `<p class="text-red-400 bg-red-500/10 p-4 rounded-lg">${result.message}</p>`; } });
+    routeForm.addEventListener("submit", (e) => { e.preventDefault(); const n = document.getElementById("train-name").value.trim().toLowerCase(); const c = document.getElementById("train-route-result"); const f = Array.from(trainsMap.values()).find(t => t.trainName.toLowerCase().includes(n) || t.trainNumber.toLowerCase() === n); if (f) { c.innerHTML = `<h3 class="text-xl font-bold mb-4 text-slate-100">${f.trainName} Route</h3><table class="w-full text-left border-collapse rounded-lg overflow-hidden"><thead class="bg-slate-800 text-slate-100"><tr><th class="p-3">Station</th></tr></thead><tbody> ${f.stations.map(s => `<tr class="border-b border-slate-700 bg-slate-900/50"><td class="p-3 font-medium">${s.stationName} (${s.stationCode})</td></tr>`).join('')} </tbody></table>`; } else { c.innerHTML = "<p class='text-red-400 bg-red-500/10 p-4 rounded-lg'>No route found.</p>"; } });
+    const tabButtons = document.querySelectorAll('.tab-btn'), tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(button => button.addEventListener('click', () => { tabButtons.forEach(btn => btn.classList.remove('active')); tabContents.forEach(content => content.classList.remove('active')); button.classList.add('active'); document.getElementById(`${button.dataset.tab}-content`).classList.add('active'); }));
+    const navLinks = document.querySelectorAll('.nav-link'), pageSections = document.querySelectorAll('main section');
+    const navObserver = new IntersectionObserver((e) => e.forEach(entry => { if (entry.isIntersecting) { navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href').substring(1) === entry.target.id)); } }), { rootMargin: '-50% 0px -50% 0px' });
+    pageSections.forEach(s => navObserver.observe(s));
+    
+    // --- INITIAL LOAD ---
+    initializeData();
+    loadBookings();
+    propObserver.observe(document.getElementById('mybookings'));
+    document.getElementById('journey-date').min = new Date().toISOString().split("T")[0];
+});
+</script>
+</body>
+</html>
