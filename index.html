@@ -18,6 +18,50 @@
       color: #cbd5e1; /* slate-300 */
       overflow-x: hidden;
     }
+     /* --- START: VIDEO INTRO STYLES --- */
+    #video-intro-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1000;
+      background-color: #020617;
+      transition: opacity 0.8s ease-out;
+    }
+    #intro-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #skip-intro-btn {
+      position: absolute;
+      bottom: 30px;
+      right: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: 1px solid white;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1001;
+      transition: background 0.3s, color 0.3s;
+    }
+    #skip-intro-btn:hover {
+      background: white;
+      color: black;
+    }
+    .content-hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .content-visible {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.5s ease-in;
+    }
+    /* --- END: VIDEO INTRO STYLES --- */
     
     /* --- PARTICLES BACKGROUND --- */
     #particles-bg {
@@ -138,6 +182,13 @@
   </style>
 </head>
 <body class="text-slate-300">
+    <div id="video-intro-container">
+    <video autoplay muted id="intro-video">
+      <source src="your-video-file.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <button id="skip-intro-btn">Skip</button>
+  </div>
   <canvas id="particles-bg"></canvas>
   
   <header id="navbar" class="fixed top-0 left-0 w-full bg-slate-950/50 backdrop-blur-lg z-50 transition-all duration-300">
@@ -222,7 +273,38 @@
   </div>
 
 <script>
+
 document.addEventListener("DOMContentLoaded", () => {
+// --- START: VIDEO INTRO LOGIC ---
+    const videoContainer = document.getElementById('video-intro-container');
+    const introVideo = document.getElementById('intro-video');
+    const skipButton = document.getElementById('skip-intro-btn');
+    const pageContent = document.getElementById('page-content-wrapper');
+
+    function startWebsite() {
+        // Make the container unclickable immediately
+        videoContainer.style.pointerEvents = 'none';
+
+        // Fade out the video container
+        videoContainer.style.opacity = '0';
+
+        // After the fade-out transition ends, remove the video container from the DOM
+        videoContainer.addEventListener('transitionend', () => {
+            videoContainer.remove();
+        });
+
+        // The lines referencing 'pageContent' have been removed as they caused the error.
+    }
+
+    // Start the website when the video ends
+    introVideo.addEventListener('ended', startWebsite);
+
+    // Also start the website if the skip button is clicked
+    skipButton.addEventListener('click', startWebsite);
+
+    // Handle cases where the video might fail to play
+    introVideo.addEventListener('error', startWebsite);
+    // --- END: VIDEO INTRO LOGIC ---
     // --- ADVANCED ANIMATIONS SETUP ---
     const canvas = document.getElementById('particles-bg');
     const ctx = canvas.getContext('2d');
